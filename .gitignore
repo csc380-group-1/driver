@@ -1,3 +1,5 @@
 .gitignore
+.DS_Store
 options.py
 results.dat
+benchmarks

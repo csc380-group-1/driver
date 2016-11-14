@@ -2,7 +2,19 @@ import sncosmo
 from analyzeSN import SNANASims
 from analyzeSN import ResChar
 import numpy as np
+from datetime import datetime
 execfile('options.py')
+
+num_sn = 4
+
+begin_time = datetime.now()
+
+def writeElapsedTime(num_failed) :
+    elapsed_time = datetime.now() - begin_time
+    output = ( '\n' + __file__ + ', ' + str(elapsed_time.total_seconds())
+               + ', ' + str(num_sn) + ', ' + str(num_failed))
+    with open('benchmarks', 'a') as f:
+        f.write(output)
 
 def inferParams(snanaSims, model, infer_method, i, minsnr=3.):
     """
@@ -31,7 +43,8 @@ if __name__ == '__main__':
 		          effects=[dust, dust],
                           effect_names=['host', 'mw'],
 		          effect_frames=['rest', 'obs'])
-    for i in range(3):
+    failed_sn = 0
+    for i in range(num_sn):
 	try:
 	    snid, r = inferParams(snana_eg, model, sncosmo.fit_lc, i, minsnr=3.)
 	    with open('results.dat', 'w') as fh: # Should Not be a text file when improved!
@@ -42,4 +55,6 @@ if __name__ == '__main__':
 	        write_str += ','.join(map(str, np.asarray(r.covariance).flatten().tolist()))
                 fh.write(write_str)
 	except:
-	    print('SN {} failed'.format(i))
+            print('SN {} failed'.format(i))
+            failed_sn += 1
+    writeElapsedTime(failed_sn)
